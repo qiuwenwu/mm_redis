@@ -3,6 +3,7 @@ const Redis = require('./index.js').Redis;
 async function test() {
 	var bl, num, arr = [];
 	var rs = new Redis();
+	rs.setConfig();
 	rs.open();
 	// await rs.set("a", "张三", 10);
 	// await rs.set("a_c", "张三", 10);

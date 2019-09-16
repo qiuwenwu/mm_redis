@@ -1,3 +1,8 @@
+/**
+ * @fileOverview redis缓存帮助类函数
+ * @author <a href="http://qww.elins.cn">邱文武</a>
+ * @version 1.2
+ */
 require('mm_expand');
 const {
 	createClient
@@ -53,7 +58,7 @@ class Redis {
 			} else {
 				obj = cg;
 			}
-			$.push(this.config, value);
+			$.push(this.config, obj);
 			this.identifier = this.config.host + "/" + this.config.database;
 		};
 		/**
