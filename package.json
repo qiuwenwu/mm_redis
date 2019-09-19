@@ -1,6 +1,6 @@
 {
   "name": "mm_redis",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "这是超级美眉redis缓存帮助类",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/qiuwenwu/mm_redis#readme",
   "dependencies": {
-    "mm_expand": "^1.2.5",
+    "mm_expand": "^1.2.6",
     "redis": "^2.8.0"
   },
   "devDependencies": {}
