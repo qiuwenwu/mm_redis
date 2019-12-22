@@ -47,7 +47,7 @@ async function test() {
 	var ar = await rs.list_get("arr");
 	console.log(ar);
 
-	//console.log("取值" + $.toJson(arr));
+	//console.log("取值" + JSON.stringify(arr));
 
 	//rs.del('a');
 	// ret = await rs.clear(); // 清空缓存
