@@ -3,9 +3,7 @@ const Redis = require('./index.js').Redis;
 async function test() {
 	var bl, num, arr = [];
 	var rs = new Redis();
-	var config = './config.json'.loadText(__dirname);
-	
-	console.log(config);
+	var config = './config.json'.loadJson(__dirname);
 	rs.setConfig(config);
 	rs.open();
 	// await rs.set("a", "张三", 10);

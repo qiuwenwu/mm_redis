@@ -41,8 +41,10 @@ class Redis {
 			"port": 6379,
 			// 密码
 			"password": "asd123",
-			/// 数据库
-			"database": 0
+			// 数据库
+			"database": 0,
+			// 前缀
+			"prefix": ""
 		};
 		// 唯一标识符
 		this.identifier = this.config.host + "/" + this.config.database;
@@ -63,7 +65,7 @@ Redis.prototype.setConfig = function(cg) {
 	} else {
 		obj = cg;
 	}
-	$.push(this.config, obj);
+	$.push(this.config, obj, true);
 	this.identifier = this.config.host + "/" + this.config.database;
 };
 
@@ -132,7 +134,7 @@ Redis.prototype.ttl = function(key, seconds) {
 	});
 };
 
-/**
+/**z
  * @description 增加整数值(负数为减)
  * @param {String} key 键
  * @param {Number} num 数值
