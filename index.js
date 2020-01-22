@@ -73,7 +73,7 @@ Redis.prototype.setConfig = function(cg) {
 Redis.prototype.open = function() {
 	if (!pool[this.host]) {
 		var cg = this.config;
-		pool[this.identifier] = createClient(cg.port, cg.host);
+		pool[this.identifier] = createClient(cg);
 		var p = cg.password;
 		if (p) {
 			pool[this.identifier].auth(p);
@@ -485,7 +485,7 @@ Redis.prototype.list_has = function(key, value) {
 		}
 		var arr = await _this.list_get(key);
 		var has = false;
-		const len = arr.length;
+		var len = arr.length;
 		for (var i = 0; i < len; i++) {
 			if (value == arr[i]) {
 				has = true;

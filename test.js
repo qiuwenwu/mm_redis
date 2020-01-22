@@ -3,7 +3,10 @@ const Redis = require('./index.js').Redis;
 async function test() {
 	var bl, num, arr = [];
 	var rs = new Redis();
-	rs.setConfig();
+	var config = './config.json'.loadText(__dirname);
+	
+	console.log(config);
+	rs.setConfig(config);
 	rs.open();
 	// await rs.set("a", "张三", 10);
 	// await rs.set("a_c", "张三", 10);
@@ -22,7 +25,7 @@ async function test() {
 	// console.log(num);
 	// 
 	// msg = await rs.setrange("a", 0, "asd");
-	// const len = await rs.addStr("a", "丰");
+	// var len = await rs.addStr("a", "丰");
 	// console.log("追加文本" + len);
 	// 
 	// var bl = await rs.has("a");
