@@ -8,8 +8,6 @@ const {
 	createClient
 } = require('redis');
 
-var pool = {};
-
 /* 创建Redis帮助类函数 */
 /// 构造函数
 class Redis {
@@ -32,7 +30,7 @@ class Redis {
 		if (dir) {
 			this.dir = dir;
 		}
-		
+
 		// 配置参数
 		this.config = {
 			// 服务器地址
@@ -50,9 +48,65 @@ class Redis {
 		this.identifier = this.config.host + "/" + this.config.database;
 		// 数据库连接器
 		this.conn;
+
+		// 消息订阅器
+		this.conn_rss;
+
+		// 订阅回调函数
+		this.func_list = {};
 	}
 }
 
+/**
+ * 消息订阅
+ * @param {String} channel 订阅的频道
+ * @param {Function} func 操作回调函数，可判断成功与否
+ */
+Redis.prototype.subscribe = function(channel, func) {
+	this.conn_rss.subscribe(channel);
+	this.func_list[channel] = func;
+};
+
+/**
+ * 取消订阅
+ * @param {String} channel 订阅的频道
+ */
+Redis.prototype.unsubscribe = function(channel) {
+	this.conn_rss.unsubscribe(channel);
+	delete this.func_list[channel];
+};
+
+/**
+ * 发布消息
+ * @param {String} channel 频道
+ * @param {String} message 订阅的消息
+ * @param {Function} func 消息发布成功回调函数
+ */
+Redis.prototype.publish = function(channel, message, func) {
+	this.conn.publish(channel, message, func);
+};
+
+/**
+ * 订阅消息处理, 如果没有订阅函数，则其他的订阅消息会进入该函数
+ * @param {String} channel
+ * @param {String} message
+ */
+Redis.prototype.main = async function(channel, message) {};
+
+/**
+ * 消息通知
+ * @param {String} channel 频道
+ * @param {String} message 消息
+ */
+Redis.prototype.message = function(channel, message) {
+	console.log("我接收到信息了" + message);
+	var func = this.func_list[channel];
+	if (func) {
+		func(message);
+	} else {
+		this.main(channel, message);
+	}
+};
 
 /**
  * @description 设置配置
@@ -73,15 +127,36 @@ Redis.prototype.setConfig = function(cg) {
  * @description 连接Redis数据库
  */
 Redis.prototype.open = function() {
-	if (!pool[this.host]) {
-		var cg = this.config;
-		pool[this.identifier] = createClient(cg);
-		var p = cg.password;
+	var cg = this.config;
+	var p = cg.password;
+	if (!this.conn) {
+		var client = createClient(cg);
 		if (p) {
-			pool[this.identifier].auth(p);
+			client.auth(p);
 		}
+		this.conn = client;
 	}
-	this.conn = pool[this.identifier];
+	if (!this.conn_rss) {
+		var rss = createClient(Object.assign(cg));
+		if (p) {
+			rss.auth(p);
+		}
+		rss.on("ready", () => {
+			// 监听订阅成功事件
+			rss.on("subscribe", function(channel, count) {
+				console.log("频道" + channel + "订阅成功, 当前总计订阅数：" + count);
+			});
+			// 监听取消订阅事件
+			rss.on("unsubscribe", function(channel, count) {
+				console.log("频道" + channel + "取消订阅, 当前总计订阅数：" + count);
+			});
+			// 收到消息后执行回调，message是redis发布的消息
+			rss.on("message", (channel, message) => {
+				this.message(channel, message);
+			});
+		});
+		this.conn_rss = rss;
+	}
 };
 
 /**
@@ -89,9 +164,9 @@ Redis.prototype.open = function() {
  */
 Redis.prototype.close = function() {
 	var cg = this.config;
-	if (pool[this.identifier]) {
-		pool[this.identifier].quit();
-		delete pool[this.identifier];
+	if (this.conn) {
+		this.conn.quit();
+		this.conn = null;
 	}
 };
 
